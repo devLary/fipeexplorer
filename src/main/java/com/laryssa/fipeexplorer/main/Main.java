@@ -6,7 +6,9 @@ import com.laryssa.fipeexplorer.service.ConsumoAPI;
 import com.laryssa.fipeexplorer.service.ConverteDados;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
     private Scanner leitura = new Scanner(System.in);
@@ -45,15 +47,14 @@ public class Main {
 
         System.out.println("Digite o código da marca para consulta:");
 
-        boolean vrf = true;
-        while(vrf){
+        while(true){
             String codigo = leitura.nextLine();
 
             if (codigo.matches("\\d+")) {
                 endereco += "/" + codigo + "/modelos";
-                vrf = false;
+                break;
             } else {
-                System.out.println("Digite apenas números!");
+                System.out.println("\nDigite apenas números!");
             }
         }
 
@@ -63,5 +64,31 @@ public class Main {
         modelosLista.modelos().stream()
                 .sorted(Comparator.comparing(Dados::codigo))
                 .forEach(System.out::println);
+
+        System.out.println("\nDigite um trecho do nome do veiculo desejado:");
+        var nomeVeiculo = leitura.nextLine();
+
+        List<Dados> modelosFiltrados = modelosLista.modelos().stream()
+                .filter(m -> m.nome().toLowerCase().contains(nomeVeiculo.toLowerCase()))
+                .collect(Collectors.toList());
+
+        System.out.println("\nModelos Filtrados:");
+        modelosFiltrados.forEach(System.out::println);
+
+        System.out.println("\nDigite o código do modelo:");
+
+        while (true){
+            var codigoModelo = leitura.nextLine();
+            if (codigoModelo.matches("\\d+")) {
+                endereco += "/" + codigoModelo + "/anos";
+                break;
+            } else {
+                System.out.println("\nDigite apenas números!");
+            }
+        }
+
+        json = consumo.obterDados(endereco);
+        List<Dados> anos = conversor.obterLista(json, Dados.class);
+        System.out.println(json);
     }
 }
