@@ -2,9 +2,11 @@ package com.laryssa.fipeexplorer.main;
 
 import com.laryssa.fipeexplorer.model.Dados;
 import com.laryssa.fipeexplorer.model.Modelos;
+import com.laryssa.fipeexplorer.model.Veiculo;
 import com.laryssa.fipeexplorer.service.ConsumoAPI;
 import com.laryssa.fipeexplorer.service.ConverteDados;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
@@ -45,7 +47,7 @@ public class Main {
                 .sorted(Comparator.comparing(d -> Integer.parseInt(d.codigo())))
                 .forEach(System.out::println);
 
-        System.out.println("Digite o código da marca para consulta:");
+        System.out.println("\nDigite o código da marca para consulta:");
 
         while(true){
             String codigo = leitura.nextLine();
@@ -89,6 +91,16 @@ public class Main {
 
         json = consumo.obterDados(endereco);
         List<Dados> anos = conversor.obterLista(json, Dados.class);
-        System.out.println(json);
+        List<Veiculo> veiculos = new ArrayList<>();
+
+        for (int i = 0; i < anos.size(); i++) {
+            var enderecoAnos = endereco + "/" + anos.get(i).codigo();
+            json = consumo.obterDados(enderecoAnos);
+            Veiculo veiculo = conversor.obterDados(json, Veiculo.class);
+            veiculos.add(veiculo);
+        }
+
+        System.out.println("\nTodos os veículos filtrados com avaliações por ano:");
+        veiculos.forEach(System.out::println);
     }
 }
